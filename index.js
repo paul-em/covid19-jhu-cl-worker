@@ -77,6 +77,12 @@ async function handleRequest(request) {
   const csv = await response.text();
   const data = parseCSV(csv);
   return new Response(JSON.stringify(mapData(data)), {
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+       // Set CORS headers
+      'Access-Control-Allow-Origin': '*',
+      // Append to/Add Vary header so browser will cache response correctly
+      'Vary': 'Origin',
+    },
   })
 }
