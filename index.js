@@ -1,3 +1,20 @@
+function getQueryVariable(request, variable, array) {
+  const url = new URL(request.url);
+  const query = url.search.slice(1);
+  const vars = query.split('&');
+  const results = [];
+  for (let i = 0; i < vars.length; i += 1) {
+    const pair = vars[i].split('=');
+    if (decodeURIComponent(pair[0]) === variable) {
+      results.push(pair[1]);
+    }
+  }
+  if (array) {
+    return results;
+  }
+  return results[0] || null;
+}
+
 function parseCSV(csvString) {
   const header = [];
   const content = [];
@@ -73,7 +90,8 @@ addEventListener('fetch', event => {
  * @param {Request} request
  */
 async function handleRequest(request) {
-  const response = await fetch('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv');
+  const metric = getQueryVariable(request, 'metric') || 'confirmed';
+  const response = await fetch(`https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_${metric}_global.csv`);
   const csv = await response.text();
   const data = parseCSV(csv);
   return new Response(JSON.stringify(mapData(data)), {
